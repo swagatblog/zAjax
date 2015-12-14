@@ -14,7 +14,32 @@ ZScript.Ajax = (function () {
     var _contentType = null;
     var _data = null;
     var _url = null;
+	var _paramName='params';
 
+	var get= function(config){
+		_success = config.success;
+        _failure = config.failure;
+        _xhr = xMLHttpRequest();
+        _data = config.data;
+         _paramName= config.paramName;
+        _requestType = 'GET';
+        _url = config.url;
+        process_request();
+	};
+	
+
+	var post= function(config){
+		_success = config.success;
+        _failure = config.failure;
+        _xhr = xMLHttpRequest();
+        _data = config.data;
+		 _paramName= config.paramName;
+        _requestType = 'POST';
+        _url = config.url;
+        process_request();
+	};
+
+	
     var send_request = function (url, requestType, contentType, data, success, failure) {
         _success = success;
         _failure = failure;
@@ -28,9 +53,9 @@ ZScript.Ajax = (function () {
     var process_request = function () {
         _xhr.onreadystatechange = xhr_onreadystatechangeHandler;
         if (_requestType == "POST" || _requestType == "post") {
-            post();
+            _post();
         }
-        else { get(); }
+        else { _get(); }
     }
 
     var xhr_onreadystatechangeHandler = function () {
@@ -46,20 +71,20 @@ ZScript.Ajax = (function () {
         }
     };
 
-    var get = function () {
+    var _get = function () {
         if (_data != null || _data != undefined)
-            _url = _url + '?parameters=' + JSON.stringify(_data);
+            _url = _url + '?'+ _paramName+'=' + JSON.stringify(_data);
         _xhr.open('GET', _url);
         _xhr.send(null);
     };
 
-    var post = function () {
+    var _post = function () {
         _xhr.open('POST', _url);
         if (_contentType == null || _contentType == undefined) {
             _contentType = 'application/json';
         }
         _xhr.setRequestHeader('Content-Type', _contentType);
-        _xhr.send('parameters=' + encodeURIComponent(JSON.stringify(_data)));
+        _xhr.send(_paramName+'=' + encodeURIComponent(JSON.stringify(_data)));
     }
 
     var setHeader = function () {
@@ -92,6 +117,8 @@ ZScript.Ajax = (function () {
     }
 
     return {
-        send_request: send_request
+        send_request: send_request,
+		get:get,
+		post:post
     };
 })();
